@@ -51,3 +51,5 @@ countries.weo <- c("AFG","ALB","DZA","AGO","ATG","ARG","ARM","ABW","AUS","AUT",
                    "THA","BHS","GMB","TLS","TGO","TON","TTO","TUN","TUR","TKM",
                    "TUV","UGA","UKR","ARE","GBR","USA","URY","UZB","VUT","VEN",
                    "VNM","YEM","ZMB","ZWE")
+
+
