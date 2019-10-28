@@ -14,6 +14,31 @@ weo2panel <- function(countries, subjects, startDate="1980-01-01", endDate="2019
   return(data4)
 }
 
+ifs2panel <- function(areas, subjects, freq="M", startDate="1980-01-01", endDate="2019-12-31") {
+  data1 <- as.data.frame(rdb("IMF", "IFS", 
+                             dimensions = list("REF_AREA" = areas, 
+                                               "INDICATOR" = subjects,
+                                               "FREQ" = freq)))   
+  data2 <- data1[data1[ , "INDICATOR"] == subjects[1], c("period", "REF_AREA", "value")]
+  if (length(subjects)>1) {
+    for (s in 2:length(subjects)) {
+      data2 <- cbind(data2, data1[data1[ , "INDICATOR"] == subjects[s], "value"])
+    }
+  }
+  names(data2) <- c("period", "area", subjects)
+  data3 <- data2[data2[ , "period"] >= startDate, ]
+  data4 <- data3[data3[ , "period"] <= endDate, ]
+  return(data4)
+}
+
+foo <- ifs2panel(c("BR", "RU", "IN", "CN", "ZA", "TR", "MX"), "FIDR_PA", freq="M", 
+                 startDate = "2019-01-01")
+
+
+foo <- as.data.frame(rdb("IMF", "IFS", dimensions = list("REF_AREA" = "RU",
+                                           "FREQ" = "M")))
+sort(unique(foo[,"INDICATOR"]))
+
 weo2frame <- function(countries, subject, startDate="1980-01-01", endDate="2019-12-31") {
   data1 <- as.data.frame(rdb("IMF", "WEO", 
                              dimensions = list("weo-country" = countries, 
