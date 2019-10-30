@@ -1,3 +1,5 @@
+################################################################################
+
 weo2panel <- function(countries, subjects, startDate="1980-01-01", endDate="2019-12-31") {
   data1 <- as.data.frame(rdb("IMF", "WEO", 
                              dimensions = list("weo-country" = countries, 
@@ -13,6 +15,8 @@ weo2panel <- function(countries, subjects, startDate="1980-01-01", endDate="2019
   data4 <- data3[data3[ , "period"] <= endDate, ]
   return(data4)
 }
+
+################################################################################
 
 ifs2panel <- function(areas, subjects, freq="M", startDate="1980-01-01", endDate="2019-12-31") {
   data1 <- as.data.frame(rdb("IMF", "IFS", 
@@ -39,6 +43,13 @@ foo <- as.data.frame(rdb("IMF", "IFS", dimensions = list("REF_AREA" = "RU",
                                            "FREQ" = "M")))
 sort(unique(foo[,"INDICATOR"]))
 
+
+
+
+
+
+################################################################################
+
 weo2frame <- function(countries, subject, startDate="1980-01-01", endDate="2019-12-31") {
   data1 <- as.data.frame(rdb("IMF", "WEO", 
                              dimensions = list("weo-country" = countries, 
@@ -55,6 +66,8 @@ weo2frame <- function(countries, subject, startDate="1980-01-01", endDate="2019-
   data4 <- data3[row.names(data3) <= endDate, ]
   return(data4)
 }
+
+################################################################################
 
 countries.weo <- c("AFG","ALB","DZA","AGO","ATG","ARG","ARM","ABW","AUS","AUT",
                    "AZE","BHR","BGD","BRB","BLR","BEL","BLZ","BEN","BTN","BOL",
