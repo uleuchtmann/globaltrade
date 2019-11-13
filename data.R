@@ -1,6 +1,7 @@
 library(rdbnomics)
 library(xts)
 library(countrycode)
+library(tidyverse)
 
 W00	
 
@@ -57,8 +58,8 @@ rdb("IMF", "DOT", dimensions = list("REF_AREA" = c("US", "RS"),
                                     "INDICATOR" = "TXG_FOB_USD"))
 
 countrycode(countriesWEO, "iso3c", "iso2c") %in% countriesDOT
-countriesWEO[168]
+countrycode(countriesWEO[88], "iso3c", "country.name")
+countrycode("ALB", "iso3c", "country.name", )
 
-
-
+as_tibble(iris)
 
