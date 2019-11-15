@@ -1,9 +1,6 @@
 library(rdbnomics)
 library(xts)
 library(countrycode)
-library(tidyverse)
-
-W00	
 
 countriesDOT <- c("AF","AL","DZ","AS","AO","AI","AG","AR","AM","AW","AU","AT",
                   "AZ","BS","BH","BD","BB","BY","BE","BZ","BJ","BM","BT","BO",
@@ -19,10 +16,10 @@ countriesDOT <- c("AF","AL","DZ","AS","AO","AI","AG","AR","AM","AW","AU","AT",
                   "MM","NA","NR","NP","NL","AN","NC","NZ","NI","NE","NG","MK",
                   "NO","OM","PK","PW","PS","PA","PG","PY","PE","PH","PL","PT",
                   "QA","RO","RU","RW","KN","LC","VC","WS","SM","ST","SA","SN",
-                  "RS","CS","SC","SL","SG","SX","SK","SI","SB","SO","ZA","SS",
-                  "ES","LK","SD","SR","SE","CH","SY","TJ","TZ","TH","TL","TG",
-                  "TO","TT","TN","TR","TM","TV","UG","UA","AE","GB","US","UY",
-                  "UZ","VU","VE","VN","YE","ZM","ZW")
+                  "RS","SC","SL","SG","SX","SK","SI","SB","SO","ZA","SS","ES",
+                  "LK","SD","SR","SE","CH","SY","TJ","TZ","TH","TL","TG","TO",
+                  "TT","TN","TR","TM","TV","UG","UA","AE","GB","US","UY","UZ",
+                  "VU","VE","VN","YE","ZM","ZW")
 
 countriesWEO <- c("AFG","ALB","DZA","AGO","ATG","ARG","ARM","ABW","AUS","AUT",
                   "AZE","BHR","BGD","BRB","BLR","BEL","BLZ","BEN","BTN","BOL",
@@ -37,29 +34,50 @@ countriesWEO <- c("AFG","ALB","DZA","AGO","ATG","ARG","ARM","ABW","AUS","AUT",
                   "MWI","MYS","MDV","MLI","MLT","MHL","MRT","MUS","MEX","FSM",
                   "MDA","MNG","MNE","MAR","MOZ","MMR","NAM","NRU","NPL","NLD",
                   "NZL","NIC","NER","NGA","MKD","NOR","OMN","PAK","PLW","PAN",
-                  "PNG","PRY","PER","PHL","POL","PRT","PRI","QAT","COG","ROU",
-                  "RUS","RWA","WSM","SMR","STP","SAU","SEN","SRB","SYC","SLE",
-                  "SGP","SVK","SVN","SLB","SOM","ZAF","SSD","ESP","LKA","KNA",
-                  "LCA","VCT","SDN","SUR","SWE","CHE","SYR","TWN","TJK","TZA",
-                  "THA","BHS","GMB","TLS","TGO","TON","TTO","TUN","TUR","TKM",
-                  "TUV","UGA","UKR","ARE","GBR","USA","URY","UZB","VUT","VEN",
-                  "VNM","YEM","ZMB","ZWE")
+                  "PNG","PRY","PER","PHL","POL","PRT","QAT","COG","ROU","RUS",
+                  "RWA","WSM","SMR","STP","SAU","SEN","SRB","SYC","SLE","SGP",
+                  "SVK","SVN","SLB","SOM","ZAF","SSD","ESP","LKA","KNA","LCA",
+                  "VCT","SDN","SUR","SWE","CHE","SYR","TWN","TJK","TZA","THA",
+                  "BHS","GMB","TLS","TGO","TON","TTO","TUN","TUR","TKM","TUV",
+                  "UGA","UKR","ARE","GBR","USA","URY","UZB","VUT","VEN","VNM",
+                  "YEM","ZMB","ZWE")
 
-countrycode(countriesDOT, "iso2c", "imf")
+length(countriesDOT)
+length(countriesWEO)
 
-countrycode(countriesWEO, "iso3c", "country.name")
+countrycode(countriesDOT, "iso2c", "country.name", 
+            custom_match = c("AN" = "Netherlands Antilles", "XK" = "Kosovo"))
+countrycode(countriesWEO, "iso3c", "country.name", custom_match = c("UVK"="Kosovo"))
 
-rdb("IMF", "WEO", dimensions = list("weo-country" = c("USA", "SRB"), 
-                                    "weo-subject" = "NGDPD"))
+countrycode(countriesWEO, "iso3c", "iso2c", custom_match = c("UVK"="XK")) %in% countriesDOT
 
-rdb("IMF", "DOT", dimensions = list("REF_AREA" = c("US", "RS"), 
-                                    "COUNTERPART_AREA" = c("US", "RS"), 
-                                    "FREQ" = "A", 
-                                    "INDICATOR" = "TXG_FOB_USD"))
+countrycode(countriesWEO[167], "iso3c", "country.name")
 
-countrycode(countriesWEO, "iso3c", "iso2c") %in% countriesDOT
-countrycode(countriesWEO[88], "iso3c", "country.name")
-countrycode("ALB", "iso3c", "country.name", )
 
-as_tibble(iris)
+foo <- rdb("IMF", "DOT", 
+           dimensions = list("INDICATOR" = "TXG_FOB_USD",  "FREQ" = "A",  
+                             "REF_AREA" = "W00", "COUNTERPART_AREA" = "US"))
+
+
+dots2panel <- function(countries, counterparts, ind = c("exp", "imp", "bal"), 
+                       freq = c("A", "Q", "M"), startDate = "2010-01-01", endDate = "2018-01-01") {
+  ind <- match.arg(ind)
+  freq <- match.arg(freq)
+  if(missing(counterparts)) counterparts <- countries
+  indicators = c("exp" = "TXG_FOB_USD", "imp" = "TMG_CIF_USD", "bal" = "TBG_USD")
+  the.dim <- list("INDICATOR" = as.character(indicators[ind]), "FREQ" = freq,
+                  "REF_AREA" = c(countries, "W00"), 
+                  "COUNTERPART_AREA" = c(counterparts, "W00"))
+  foo <- rdb("IMF", "DOT", dimensions = the.dim)
+  return(foo)
+}
+foo <- dots2panel(c("US", "CN"))
+
+foo <- c(1,2,3)
+c(foo, 4)
+
+
+as.character(indicators["bal"])
+
+list("INDICATOR" = as.character(indicators["exp"]))
 

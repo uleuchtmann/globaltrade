@@ -46,8 +46,6 @@ sort(unique(foo[,"INDICATOR"]))
 
 
 
-
-
 ################################################################################
 
 weo2frame <- function(countries, subject, startDate="1980-01-01", endDate="2019-12-31") {
@@ -90,22 +88,22 @@ countries.weo <- c("AFG","ALB","DZA","AGO","ATG","ARG","ARM","ABW","AUS","AUT",
                    "TUV","UGA","UKR","ARE","GBR","USA","URY","UZB","VUT","VEN",
                    "VNM","YEM","ZMB","ZWE")
 
-countriesDOT <- c("AF","AL","DZ","AS","AO","AI","AG","AR","AM","AW","AU","AT",
-                  "AZ","BS","BH","BD","BB","BY","BE","BZ","BJ","BM","BT","BO",
-                  "BA","BW","BR","BN","BG","BF","BI","KH","CM","CA","CV","CF",
-                  "TD","CL","CN","CO","KM","CG","CD","CR","CI","HR","CU","CW",
-                  "CY","CZ","DK","DJ","DM","DO","EC","EG","SV","GQ","ER","EE",
-                  "SZ","ET","FK","FO","FJ","FI","FR","PF","GA","GM","GE","DE",
-                  "GH","GI","GR","GL","GD","GU","GT","GN","GW","GY","HT","VA",
-                  "HN","HK","HU","IS","IN","ID","IR","IQ","IE","IL","IT","JM",
-                  "JP","JO","KZ","KE","KI","KP","KR","XK","KW","KG","LA","LV",
-                  "LB","LS","LR","LY","LT","LU","MO","MG","MW","MY","MV","ML",
-                  "MT","MH","MR","MU","MX","FM","MD","MN","ME","MS","MA","MZ",
-                  "MM","NA","NR","NP","NL","AN","NC","NZ","NI","NE","NG","MK",
-                  "NO","OM","PK","PW","PS","PA","PG","PY","PE","PH","PL","PT",
-                  "QA","RO","RU","RW","KN","LC","VC","WS","SM","ST","SA","SN",
-                  "RS","CS","SC","SL","SG","SX","SK","SI","SB","SO","ZA","SS",
-                  "ES","LK","SD","SR","SE","CH","SY","TJ","TZ","TH","TL","TG",
-                  "TO","TT","TN","TR","TM","TV","UG","UA","AE","GB","US","UY",
-                  "UZ","VU","VE","VN","YE","ZM","ZW")
+countries.dot <- c("AF","AL","DZ","AS","AO","AI","AG","AR","AM","AW","AU","AT",
+                   "AZ","BS","BH","BD","BB","BY","BE","BZ","BJ","BM","BT","BO",
+                   "BA","BW","BR","BN","BG","BF","BI","KH","CM","CA","CV","CF",
+                   "TD","CL","CN","CO","KM","CG","CD","CR","CI","HR","CU","CW",
+                   "CY","CZ","DK","DJ","DM","DO","EC","EG","SV","GQ","ER","EE",
+                   "SZ","ET","FK","FO","FJ","FI","FR","PF","GA","GM","GE","DE",
+                   "GH","GI","GR","GL","GD","GU","GT","GN","GW","GY","HT","VA",
+                   "HN","HK","HU","IS","IN","ID","IR","IQ","IE","IL","IT","JM",
+                   "JP","JO","KZ","KE","KI","KP","KR","XK","KW","KG","LA","LV",
+                   "LB","LS","LR","LY","LT","LU","MO","MG","MW","MY","MV","ML",
+                   "MT","MH","MR","MU","MX","FM","MD","MN","ME","MS","MA","MZ",
+                   "MM","NA","NR","NP","NL","AN","NC","NZ","NI","NE","NG","MK",
+                   "NO","OM","PK","PW","PS","PA","PG","PY","PE","PH","PL","PT",
+                   "QA","RO","RU","RW","KN","LC","VC","WS","SM","ST","SA","SN",
+                   "RS","CS","SC","SL","SG","SX","SK","SI","SB","SO","ZA","SS",
+                   "ES","LK","SD","SR","SE","CH","SY","TJ","TZ","TH","TL","TG",
+                   "TO","TT","TN","TR","TM","TV","UG","UA","AE","GB","US","UY",
+                   "UZ","VU","VE","VN","YE","ZM","ZW")
 
