@@ -1,36 +1,25 @@
 library(rdbnomics)
 library(xts)
 library(countrycode)
-library(readr)
-countries <- read_csv("countriesDOT.csv", na="#N/A")
+source("utilities.R")
+countries <- read.csv("countriesDOT.csv", na.strings ="#N/A", stringsAsFactors = FALSE)
 
+# test project: GDP scaling of Japan's exports to EMU
+countries[countries$is_country & countries$euro_area, "dotcode"]
+countries[countries$is_country & countries$euro_area, "weocode"]
 
-dot2panel <- function(countries, counterparts = NULL, freq = c("A", "Q", "M"),
-                      indicator = c("exp", "imp", "bal"), 
-                      startDate = "1960-01-01", endDate=NULL) {
-  freq <- match.arg(freq)
-  indicator <- match.arg(indicator)
-  freqs <- c("A" = "year", "Q" = "quarter", "M" = "month")
-  indicators <- c("imp" = "TMG_FOB_USD", "exp" = "TXG_FOB_USD", "bal" = "TBG_USD")
-  if (is.null(counterparts)) counterparts <- countries
-  if (is.null(endDate)) endDate <- Sys.Date()
-  the.dim <- list("FREQ" = freq, "INDICATOR" = as.character(indicators[indicator]),
-                  "REF_AREA" = countries, "COUNTERPART_AREA" = counterparts)
-  foo <- rdb("IMF", "DOT", dimensions = the.dim)
-  bar <- foo[foo$period >= startDate & foo$period <= endDate, 
-             c("REF_AREA", "COUNTERPART_AREA", "period", "value")]
-  names(bar) <- c("origin", "destination", "period", "value")
-  return(bar)
-}
+jp.exports.emu <- dot2panel("JP", countries[countries$is_country & countries$euro_area, "dotcode"],
+                            indicator = "exp", freq ="A", 
+                            startDate = "2018-01-01", endDate = "2018-01-01")
 
-the.countries <- c("W00", "US", "CN")
-baz <- dot2panel(the.countries, startDate = "1999-01-01", endDate = "2010-01-01")
+emu.gdp <- weo2panel(countries[countries$is_country & countries$euro_area, "weocode"], 
+                     "NGDP", startDate = "2018-01-01", endDate = "2018-01-01")
 
-seq(as.Date("2018-01-01"), Sys.Date(), "month")
+jp.exp <- merge(emu.gdp, merge(jp.exports.emu, countries[,c("dotcode", "weocode")], 
+                              by.x = "destination", by.y = "dotcode", all.x = TRUE)[,c("weocode", "value")], 
+                by.x = "country", by.y = "weocode", all = TRUE)[, c("country", "NGDP", "value")]
+names(jp.exp) <- c("country", "GDP", "exports")
 
-
-data.frame(NULL)
-
-
-baz$period[288] >= as.Date("1960-01-01")
-
+plot(exports ~ GDP, data = jp.exp)          
+with(jp.exp, text(exports ~ GDP, labels = country, pos = 4))         
+          
