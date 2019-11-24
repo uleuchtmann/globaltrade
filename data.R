@@ -2,38 +2,37 @@ library(rdbnomics)
 source("utilities.R")
 countries <- read.csv("countriesDOT.csv", na.strings ="#N/A", stringsAsFactors = FALSE)
 
-# test project: GDP scaling of Japan's exports to EMU
-countries[countries$is_country & countries$euro_area, "dotcode"]
-countries[countries$is_country & countries$euro_area, "weocode"]
+# for which countries do we have WEO data?
+countries[countries$is_country & !is.na(countries$weocode), c("dotcode", "weocode")]
 
-jp.exports.emu <- dot2panel("JP", countries[countries$is_country & countries$euro_area, "dotcode"],
-                            indicator = "exp", freq ="A", 
-                            startDate = "2018-01-01", endDate = "2018-01-01")
-
-emu.imports.jp <- dot2panel(countries[countries$is_country & countries$euro_area, "dotcode"], "JP",
-                            indicator = "imp", freq = "A",
-                            startDate = "2018-01-01", endDate = "2018-01-01")
+regions <- c("USA", "CHN", "001", "163")
+regions <- c("USA", "CHN")
+regions <- c("001", "163")
+subjects <- c("NGDPD", "NGDP_RPCH")
 
 
-emu.gdp <- weo2panel(countries[countries$is_country & countries$euro_area, "weocode"], 
-                     "NGDP", startDate = "2018-01-01", endDate = "2018-01-01")
 
-jp.exp <- merge(emu.gdp, merge(jp.exports.emu, countries[,c("dotcode", "weocode")], 
-                              by.x = "destination", by.y = "dotcode", all.x = TRUE)[,c("weocode", "value")], 
-                by.x = "country", by.y = "weocode", all = TRUE)[, c("country", "NGDP", "value")]
-names(jp.exp) <- c("country", "GDP", "exports")
+if (any(substr(regions, 1, 1) %in% LETTERS)) {
+  cou <- regions[substr(regions, 1, 1) %in% LETTERS]
+  cou.dat <- as.data.frame(rdb("IMF", "WEO", 
+                               dimensions = list("weo-country" = cou, 
+                                                 "weo-subject" = subjects
+                                                )
+                              )
+                          )[,c("period", "weo-country", "weo-subject", "value")]
+  names(cou.dat) <- c("period", "country", "subject", "value")
+}
+if (any(!(substr(regions, 1, 1) %in% LETTERS))) {
+  agg <- regions[!(substr(regions, 1, 1) %in% LETTERS)]
+  agg.dat <- as.data.frame(rdb("IMF", "WEOAGG", 
+                               dimensions = list("weo-countries-group" = agg, 
+                                                 "weo-subject" = subjects
+                                                )
+                              )
+                          )[,c("period", "weo-country", "weo-subject", "value")]
+  names(agg.dat) <- c("period", "country", "subject", "value")
+}
+dat <- rbind
 
-
-emu.imp <- merge(emu.gdp, merge(emu.imports.jp, countries[,c("dotcode", "weocode")], 
-                                by.x = "origin", by.y = "dotcode", all.x = TRUE)[,c("weocode", "value")],
-                 by.x = "country", by.y = "weocode", all = TRUE)[,c("country", "NGDP", "value")]
-names(emu.imp) <- c("country", "GDP", "imports")
-
-
-plot(exports ~ GDP, data = jp.exp)          
-with(jp.exp, text(exports ~ GDP, labels = country, pos = 4))         
-
-plot(imports ~ GDP, data = emu.imp)          
-with(emu.imp, text(imports ~ GDP, labels = country, pos = 4))         
-
+!any(substr(regions, 1, 1) %in% LETTERS)
 

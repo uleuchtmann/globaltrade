@@ -1,19 +1,40 @@
 ################################################################################
 
-weo2panel <- function(countries, subjects, startDate="1980-01-01", endDate="2019-12-31") {
-  data1 <- as.data.frame(rdb("IMF", "WEO", 
-                             dimensions = list("weo-country" = countries, 
-                                               "weo-subject" = subjects)))
-  data2 <- data1[data1[ , "weo-subject"] == subjects[1], c("period", "weo-country", "value")]
+weo2panel <- function(regions, subjects, startDate="1980-01-01", endDate="2019-12-31") {
+  cou.dat <- NULL
+  if (any(substr(regions, 1, 1) %in% LETTERS)) {
+    cou <- regions[substr(regions, 1, 1) %in% LETTERS]
+    cou.dat <- as.data.frame(rdb("IMF", "WEO", 
+                                 dimensions = list("weo-country" = cou, 
+                                                   "weo-subject" = subjects
+                                                  )
+                                )
+                            )[,c("period", "weo-country", "weo-subject", "value")]
+    names(cou.dat) <- c("period", "region", "subject", "value")
+  }
+  agg.dat <- NULL
+  if (any(!(substr(regions, 1, 1) %in% LETTERS))) {
+    agg <- regions[!(substr(regions, 1, 1) %in% LETTERS)]
+    agg.dat <- as.data.frame(rdb("IMF", "WEOAGG", 
+                                 dimensions = list("weo-countries-group" = agg, 
+                                                   "weo-subject" = subjects
+                                                  )
+                                )
+                            )[,c("period", "weo-countries-group", "weo-subject", "value")]
+    names(agg.dat) <- c("period", "region", "subject", "value")
+  }
+  dat <- rbind(cou.dat, agg.dat)
+  dat.pan <- dat[dat$subject == subjects[1], c("period", "region", "value")]
+  names(dat.pan) <- c("period", "region", subjects[1])
   if (length(subjects)>1) {
     for (s in 2:length(subjects)) {
-      data2 <- cbind(data2, data1[data1[ , "weo-subject"] == subjects[s], "value"])
+      dat.s.pan <- dat[dat$subject == subjects[s], c("period", "region", "value")]
+      names(dat.s.pan) <- c("period", "region", subjects[s])
+      dat.pan <- merge(dat.pan, dat.s.pan, key = c("period", "region"), all=TRUE)
     }
   }
-  names(data2) <- c("period", "country", subjects)
-  data3 <- data2[data2[ , "period"] >= startDate, ]
-  data4 <- data3[data3[ , "period"] <= endDate, ]
-  return(data4)
+  dat.ret <- dat.pan[dat.pan$period>=as.Date("2000-01-01") & dat.pan$period<=as.Date("2019-01-01"),]
+  return(dat.ret[order(dat.ret$region, dat.ret$period),])
 }
 
 ################################################################################
