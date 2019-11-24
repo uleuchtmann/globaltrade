@@ -2,37 +2,20 @@ library(rdbnomics)
 source("utilities.R")
 countries <- read.csv("countriesDOT.csv", na.strings ="#N/A", stringsAsFactors = FALSE)
 
-# for which countries do we have WEO data?
-countries[countries$is_country & !is.na(countries$weocode), c("dotcode", "weocode")]
+# countries with WEO data (EMU as aggregate)
+countries[(countries$is_country & !is.na(countries$weocode) & !countries$euro_area) | 
+          (!is.na(countries$weocode) & countries$weocode == "163"),
+          c("dotcode", "weocode")]
+the.regions <- countries[(countries$is_country & !is.na(countries$weocode) & !countries$euro_area) | 
+                               (!is.na(countries$weocode) & countries$weocode == "163"),
+                         c("dotcode", "weocode")]
 
-regions <- c("USA", "CHN", "001", "163")
-regions <- c("USA", "CHN")
-regions <- c("001", "163")
-subjects <- c("NGDPD", "NGDP_RPCH")
+# 2018 GDP data from WEO
+gdp <- weo2panel(the.regions[,"weocode"], "NGDPD", "2018-01-01", "2018-01-01")
+
+# 2018 total import and export data from DOT
+imports <- dot2panel(the.regions.dot, "W00", freq = "A", indicator = "imp", startDate = "2018-01-01", endDate = "2018-01-01")
+exports <- dot2panel(the.regions.dot, "W00", freq = "A", indicator = "exp", startDate = "2018-01-01", endDate = "2018-01-01")
 
 
-
-if (any(substr(regions, 1, 1) %in% LETTERS)) {
-  cou <- regions[substr(regions, 1, 1) %in% LETTERS]
-  cou.dat <- as.data.frame(rdb("IMF", "WEO", 
-                               dimensions = list("weo-country" = cou, 
-                                                 "weo-subject" = subjects
-                                                )
-                              )
-                          )[,c("period", "weo-country", "weo-subject", "value")]
-  names(cou.dat) <- c("period", "country", "subject", "value")
-}
-if (any(!(substr(regions, 1, 1) %in% LETTERS))) {
-  agg <- regions[!(substr(regions, 1, 1) %in% LETTERS)]
-  agg.dat <- as.data.frame(rdb("IMF", "WEOAGG", 
-                               dimensions = list("weo-countries-group" = agg, 
-                                                 "weo-subject" = subjects
-                                                )
-                              )
-                          )[,c("period", "weo-country", "weo-subject", "value")]
-  names(agg.dat) <- c("period", "country", "subject", "value")
-}
-dat <- rbind
-
-!any(substr(regions, 1, 1) %in% LETTERS)
 
