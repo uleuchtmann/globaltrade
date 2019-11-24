@@ -33,7 +33,7 @@ weo2panel <- function(regions, subjects, startDate="1980-01-01", endDate="2019-1
       dat.pan <- merge(dat.pan, dat.s.pan, key = c("period", "region"), all=TRUE)
     }
   }
-  dat.ret <- dat.pan[dat.pan$period>=as.Date("2000-01-01") & dat.pan$period<=as.Date("2019-01-01"),]
+  dat.ret <- dat.pan[dat.pan$period>=as.Date(startDate) & dat.pan$period<=as.Date(endDate),]
   return(dat.ret[order(dat.ret$region, dat.ret$period),])
 }
 
