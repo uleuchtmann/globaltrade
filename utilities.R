@@ -89,10 +89,31 @@ dot2panel <- function(countries, counterparts = NULL, freq = c("A", "Q", "M"),
   the.dim <- list("FREQ" = freq, "INDICATOR" = as.character(indicators[indicator]),
                   "REF_AREA" = countries, "COUNTERPART_AREA" = counterparts)
   foo <- rdb("IMF", "DOT", dimensions = the.dim)
-  bar <- foo[foo$period >= startDate & foo$period <= endDate, 
-             c("REF_AREA", "COUNTERPART_AREA", "period", "value")]
+  bar <- as.data.frame(foo[foo$period >= startDate & foo$period <= endDate, 
+                           c("REF_AREA", "COUNTERPART_AREA", "period", "value")])
   names(bar) <- c("origin", "destination", "period", "value")
   return(bar)
 }
 
 ###############################################################################
+
+dot.agg <- function(baz, agg.region, agg.region.name = "AGG") {
+  for (theperiod in unique(format(baz$period))) { 
+    for (thedest in setdiff(unique(baz$destination), agg.region)) { 
+      therow <- data.frame(agg.region.name, thedest, as.Date(theperiod), 
+                           sum(baz[(baz$destination == thedest) & (baz$origin %in% agg.region) & (baz$period == theperiod), ]$value)
+                          )
+      names(therow) <- names(baz)
+      baz <- rbind(baz, therow)
+    }
+    for (theorig in setdiff(setdiff(unique(baz$origin), agg.region), agg.region.name)) {
+      therow <- data.frame(theorig, agg.region.name, as.Date(theperiod),
+                           sum(baz[(baz$origin == theorig) & (baz$destination %in% agg.region) & (baz$period == theperiod), ]$value)
+                          )
+      names(therow) <- names(baz)
+      baz <- rbind(baz, therow)
+    }
+  }
+  return(baz[(!(baz$destination %in% agg.region)) & (!(baz$origin %in% agg.region)),])
+}
+
