@@ -94,3 +94,7 @@ trade$gdp.destination <- gdp.destination
 # add a dummy distance variable
 trade$distance <- rep(1, nrow(trade))
 
+# save
+save(trade, file = "trade.RData")
+
+
